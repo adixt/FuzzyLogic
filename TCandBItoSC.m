@@ -6,16 +6,16 @@ close all;
 priceDemandFIS = sugfis('Name', "TC and BI - SC");
 
 % Add input variable -Transportation Cost (TC)- to fuzzy inference system
-priceDemandFIS = addInput(priceDemandFIS, [30 60], 'Name', "TC");
+priceDemandFIS = addInput(priceDemandFIS, [300000 600000], 'Name', "TC");
 % Add input variable -Bullwhip Indicator (BI)- to fuzzy inference system
 priceDemandFIS = addInput(priceDemandFIS, [1 2], 'Name', "BI");
 %Add output variable -System Condition (SC)- to fuzzy inference system
 priceDemandFIS = addOutput(priceDemandFIS, [-1 1], 'Name', "SC");
 
 %Add Z-shaped membership function to 1st input fuzzy variable -TC-
-priceDemandFIS = addMF(priceDemandFIS, "TC", 'zmf', [30 40], 'Name', "cheap");
+priceDemandFIS = addMF(priceDemandFIS, "TC", 'zmf', [300000 400000], 'Name', "cheap");
 %Add Triangular membership function to 1st input fuzzy variable -TC-
-priceDemandFIS = addMF(priceDemandFIS, "TC", 'trimf', [36 43 50], 'Name', "averageCost");
+priceDemandFIS = addMF(priceDemandFIS, "TC", 'trimf', [360000 430000 500000], 'Name', "averageCost");
 %Add S-shaped membership function to 1st input fuzzy variable -TC-
 priceDemandFIS = addMF(priceDemandFIS, "TC", 'smf', [45 60], 'Name', "expensive");
 
