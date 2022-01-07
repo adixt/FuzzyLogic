@@ -1,39 +1,57 @@
-clc
-clear
-close all
+clc;
+clear;
+close all;
 
-%a type-1 Mamdani Fuzzy Inference System (FIS)
-priceDemandFIS = mamfis('Name', "10^3 Price (USD)- BTC Demand");
+%a type-2 Sugeno Fuzzy Inference System (FIS)
+priceDemandFIS = sugfis('Name', "TC and BI - SC");
 
-% Add input variable -price- to fuzzy inference system
-priceDemandFIS = addInput(priceDemandFIS, [40 60], 'Name', "price");
-%Add output variable -demand- to fuzzy inference system
-priceDemandFIS = addOutput(priceDemandFIS, [0 100], 'Name', "demand");
+% Add input variable -Transportation Cost (TC)- to fuzzy inference system
+priceDemandFIS = addInput(priceDemandFIS, [30 60], 'Name', "TC");
+% Add input variable -Bullwhip Indicator (BI)- to fuzzy inference system
+priceDemandFIS = addInput(priceDemandFIS, [1 2], 'Name', "BI");
+%Add output variable -System Condition (SC)- to fuzzy inference system
+priceDemandFIS = addOutput(priceDemandFIS, [-1 1], 'Name', "SC");
 
-%Add Z-shaped membership function to input fuzzy variable -price-
-priceDemandFIS = addMF(priceDemandFIS, "price", 'zmf', [40 50], 'Name', "cheap");
-%Add Triangular membership function to input fuzzy variable -price-
-priceDemandFIS = addMF(priceDemandFIS, "price", 'trimf', [47 50 58], 'Name', "medium");
-%Add S-shaped membership function to input fuzzy variable -price-
-priceDemandFIS = addMF(priceDemandFIS, "price", 'smf', [50 60], 'Name', "expensive");
+%Add Z-shaped membership function to 1st input fuzzy variable -TC-
+priceDemandFIS = addMF(priceDemandFIS, "TC", 'zmf', [30 40], 'Name', "cheap");
+%Add Triangular membership function to 1st input fuzzy variable -TC-
+priceDemandFIS = addMF(priceDemandFIS, "TC", 'trimf', [36 43 50], 'Name', "averageCost");
+%Add S-shaped membership function to 1st input fuzzy variable -TC-
+priceDemandFIS = addMF(priceDemandFIS, "TC", 'smf', [45 60], 'Name', "expensive");
 
-%Add Gaussian membership functions to output fuzzy variable -demand-
-priceDemandFIS = addMF(priceDemandFIS, "demand", 'gaussmf', [5 25], 'Name', "low");
-priceDemandFIS = addMF(priceDemandFIS, "demand", 'gaussmf', [10 40], 'Name', "mid");
-priceDemandFIS = addMF(priceDemandFIS, "demand", 'gaussmf', [20 60], 'Name', "high");
+%Add Z-shaped membership function to 2nd input fuzzy variable -BI-
+priceDemandFIS = addMF(priceDemandFIS, "BI", 'zmf', [1 1.3], 'Name', "low");
+%Add Triangular membership function to 2nd input fuzzy variable -BI-
+priceDemandFIS = addMF(priceDemandFIS, "BI", 'trimf', [1.2 1.35 1.5], 'Name', "medium");
+%Add S-shaped membership function to 2nd input fuzzy variable -BI-
+priceDemandFIS = addMF(priceDemandFIS, "BI", 'smf', [1.4 2.0], 'Name', "high");
 
-Fuzzy_rules = [
-            1 3 1 1 %If (price is cheap(1)) then (demand is high(3)) with 100 % condifence (1) AND(1)'
-            3 1 1 1 %If (price is expensive(3)) then (demand is low(1)) with 100 % condifence (1) AND(1)'
-            2 2 1 1]; % If (price is medium(2)) then (demand is mid(2)) with 100 % condifence (1) AND(1)'
+%Add constant membership functions to output fuzzy variable -SC-
+priceDemandFIS = addMF(priceDemandFIS, "SC", 'constant', -1, 'Name', "optimal");
+priceDemandFIS = addMF(priceDemandFIS, "SC", 'constant', -0.5, 'Name', "nearOptimal");
+priceDemandFIS = addMF(priceDemandFIS, "SC", 'constant', 0, 'Name', "regular");
+priceDemandFIS = addMF(priceDemandFIS, "SC", 'constant', 0.5, 'Name', "nonoptimal");
+priceDemandFIS = addMF(priceDemandFIS, "SC", 'constant', 1, 'Name', "disturbed");
 
-%Add rule to fuzzy inference system
+Fuzzy_rules = [ ...
+                "TC==cheap & BI==low => SC=optimal"; ...
+                "TC==averageCost & BI==low => SC=nearOptimal"; ...
+                "TC==expensive & BI==low => SC=regular"; ...
+                "TC==cheap & BI==medium => SC=nearOptimal"; ...
+                "TC==averageCost & BI==medium => SC=regular"; ...
+                "TC==expensive & BI==medium => SC=nonoptimal"; ...
+                "TC==cheap & BI==high => SC=regular"; ...
+                "TC==averageCost & BI==high => SC=nonoptimal"; ...
+                "TC==expensive & BI==high => SC=disturbed" ...
+            ];
+
+%Add rules to fuzzy inference system
 priceDemandFIS = addRule(priceDemandFIS, Fuzzy_rules);
 %The FIS Editor displays high-level information about a Fuzzy Inference System.
-fuzzy(priceDemandFIS)
+fuzzy(priceDemandFIS);
 %Display fuzzy inference system
-plotfis(priceDemandFIS)
+plotfis(priceDemandFIS);
 %Display fuzzy inference system rules
-showrule(priceDemandFIS)
+showrule(priceDemandFIS);
 %Open Rule Viewer
-ruleview(priceDemandFIS)
+ruleview(priceDemandFIS);
